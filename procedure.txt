@@ -1,0 +1,156 @@
+
+                             Project setup 
+
+
+
+***//**** first initialize npm 
+
+    1.  npm init -y
+
+
+
+****//*** then install express for server
+
+    1. npm install express
+
+
+
+***//**** then installing typescript with express configuration  and initialize 
+
+    1. npm install typescript ts-node @types/node @types/express
+
+    2. npx tsc --init
+    
+    3. then configure 'rootDir' and 'outDir' and write script to run code 
+
+                "start": "node ./dist/app.js"
+        
+    4. "tsc" to convert the ts file into js
+
+    5. to run the code 
+            "node .\dist\app.js"
+
+
+
+***//**** for automatic  restart and directly run the ts code 
+
+        1. install ts node dev 
+
+                "npm install ts-node-dev --save-dev"
+
+        2. then write script to run ts file using 'ts node dev '
+
+                "scripts":{
+
+                    "start:prod" :  "node ./dist/server.js",
+                    "start:dev" : "ts-node-dev --respawn --transpile-only ./src/server.ts",
+                    "build": "tsc"
+                }
+
+
+
+
+
+******* then install cors 
+
+    1. npm install cors 
+
+
+
+******* set up dotenv for environment variable for database connection
+
+        1. install dotenv 
+            
+            "npm install dotenv"
+        
+        2. write database url and other environment variable into .env file in root of  my project . the codes are like below
+
+                PORT = 3000
+                DATABASE_URL = mongodb+srv://jamilname12:<{ passwored dibo ekta }>@cluster0.wcj6uui.mongodb.net/{ database er nam dibo ekta }?retryWrites=true&w=majority&appName=Cluster0
+        
+        3. open a new config folder in app folder 
+                src>app>config>index.ts 
+        
+        4. join the cwd and .env file and export port and database_url to import it from server.ts file 
+
+                dotenv.config({ path: path.join((process.cwd(), ".env")) });
+        
+
+***//****  open a .gitignore file not to send some file to github 
+            
+            node_modules
+            .env 
+            dist
+
+******* then install mongoose setup for schema validation 
+
+    1. install mongoose 
+            npm install mongoose --save 
+
+    2. connect mongoose into server using database_url of mongoDB 
+
+        mongoose.connect({database url}) >>>>>>>>>> format
+        mongoose.connect(configuration.database_url as string) >>>>> code with type declaration
+
+     NOTE: make sure to use try catch to avoid error and never forget to use app.listen()  function into main() function .
+
+
+***//***  setup eslint for checking syntax and find problems and  enforce code style
+
+    1. installing eslint 
+
+        npm install --save-dev eslint @eslint/js @types/eslint__js typescript typescript-eslint
+
+    2. initialize eslint 
+
+        npx eslint --init
+
+    3. open a eslint.config.mjs file  and write the code below 
+
+
+            import pluginJs from "@eslint/js";
+            import tseslint from "typescript-eslint";
+
+            export default [
+              { files: ["**/*.{js,mjs,cjs,ts}"] },
+              pluginJs.configs.recommended,
+              ...tseslint.configs.recommended,
+              {
+                languageOptions: {
+                  globals: {
+                    ...global.node,
+                    process: "readonly",
+                  },
+                },
+              },
+
+              {
+                rules: {
+                  "no-unused-vars": "error",
+                  "no-unused-expressions": "error",
+                  "prefer-const": "error",
+                  "no-undef": "error",
+                  "no-console": "warn",
+                },
+              },
+              {
+                ignores: ["node_modules", "dist"],
+              },
+            ];
+
+    
+    4. write some script to run lint and fix lint 
+
+            "lint": "npx eslint src .",
+            "lint:fix": "npx eslint src --fix"
+
+
+
+
+
+
+
+
+
+
+
