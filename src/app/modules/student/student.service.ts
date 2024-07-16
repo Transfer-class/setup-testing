@@ -10,18 +10,24 @@ import { Student } from "./student.model";
 
 // using instace method
 const createStudentIntoDB = async (studentData: TStudent) => {
-  // const result = await StudentModel.create(student); // built-in static method
-
-  // now we will make the static method using instance method
-  // const studentInstance = new StudentModel(studentData); // changing name StudentModel to Student for naming confliction
-  const studentInstance = new Student(studentData); // creating an instance
-  // const result = await studentInstance.save(); // built in instance method
-
-  if (await studentInstance.isUserExists(studentData.id)) {
+  // custom static method
+  if (await Student.isUserExists(studentData.id)) {
     throw new Error("user already exist");
   }
 
-  const result = await studentInstance.save(); // built in instance method
+  // const result = await StudentModel.create(student); // built-in static method
+  const result = await Student.create(studentData); // built-in static method
+
+  // now we will make the static method using instance method
+  // const studentInstance = new StudentModel(studentData); // changing name StudentModel to Student for naming confliction
+  // const studentInstance = new Student(studentData); // creating an instance
+  // // const result = await studentInstance.save(); // built in instance method
+
+  // if (await studentInstance.isUserExists(studentData.id)) {
+  //   throw new Error("user already exist");
+  // }
+
+  // const result = await studentInstance.save(); // built in instance method
 
   return result;
 };

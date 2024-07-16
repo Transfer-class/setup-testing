@@ -2,11 +2,18 @@ import { Schema, model, connect } from "mongoose";
 
 import validator from "validator";
 
+// import {
+//   TGuardian,
+//   TLocalGuardian,
+//   TStudent,
+//   StudentMethods,
+//   StudentModel,
+//   TUserName,
+// } from "./student.interface";
 import {
   TGuardian,
   TLocalGuardian,
   TStudent,
-  StudentMethods,
   StudentModel,
   TUserName,
 } from "./student.interface";
@@ -100,7 +107,70 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
 
 // And a schema that knows about StudentMethods
 
-const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
+// const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
+//   id: { type: String, required: [true, "ID is required"], unique: true },
+//   name: { type: userNameSchema, required: [true, "Name is required"] },
+//   gender: {
+//     type: String,
+//     enum: {
+//       values: ["male", "female", "other"],
+//       message:
+//         "The gender field can only be one of the following: 'male', 'female', or 'other'",
+//     },
+//     required: [true, "Gender is required"],
+//   },
+//   dateOfBirth: { type: String, required: [true, "Date of birth is required"] },
+//   email: {
+//     type: String,
+//     required: [true, "Email is required"],
+//     unique: true,
+
+//     validate: {
+//       validator: (value: string) => validator.isEmail(value),
+//       message: "{VALUE} is not valid email type", // is the value return false this will be error message
+//     },
+//   },
+//   contactNo: { type: String, required: [true, "Contact number is required"] },
+//   emergencyContactNo: {
+//     type: String,
+//     required: [true, "Emergency contact number is required"],
+//   },
+
+//   bloodGroup: {
+//     type: String,
+//     enum: {
+//       values: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+//       message: "{VALUE} is not supported", // {VALUE will be the user provided value}
+//     },
+//     required: [true, "Blood group is required"],
+//   },
+//   presentAddress: {
+//     type: String,
+//     required: [true, "Present address is required"],
+//   },
+//   permanentAddress: {
+//     type: String,
+//     required: [true, "Permanent address is required"],
+//   },
+//   guardian: {
+//     type: guardianSchema,
+//     required: [true, "Guardian information is required"],
+//   },
+//   localGuardian: {
+//     type: localGuardianSchema,
+//     required: [true, "Local guardian information is required"],
+//   },
+//   profileImage: { type: String, required: [true, "Profile image is required"] },
+//   isActive: {
+//     type: String,
+//     enum: ["active", "blocked"],
+//     default: "active",
+//     required: [true, "Active status is required"],
+//   },
+// });
+
+// for static method
+const studentSchema = new Schema<TStudent, StudentModel>({
   id: { type: String, required: [true, "ID is required"], unique: true },
   name: { type: userNameSchema, required: [true, "Name is required"] },
   gender: {
@@ -161,6 +231,13 @@ const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
     required: [true, "Active status is required"],
   },
 });
+
+// creating a custom static method
+
+studentSchema.statics.isUserExists = async function (id: string) {
+  const existingUser = await Student.findOne({ id });
+  return existingUser;
+};
 
 //   code below is without using custom instance method
 
@@ -231,10 +308,10 @@ const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
 // studentModel = model.<Student interface> ('Database collection Name',studentSchema to validate)
 
 // creating a custom instance method
-studentSchema.methods.isUserExists = async function (id: string) {
-  const existingUser = await Student.findOne({ id });
-  return existingUser;
-};
+// studentSchema.methods.isUserExists = async function (id: string) {
+//   const existingUser = await Student.findOne({ id });
+//   return existingUser;
+// };
 
 // without custom instance method
 // export const Student = model<TStudent>("Student", studentSchema);

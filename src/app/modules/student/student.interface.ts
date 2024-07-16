@@ -41,13 +41,20 @@ export type TStudent = {
   isActive: "active" | "blocked";
 };
 
-// for custom instance method learning to find if a user exist in our DB or not
-export type StudentMethods = {
-  isUserExists(id: string): Promise<TStudent | null>; // the Promise will return TStudent type data if student exist otherwise it will return null
-};
+// for creating static
+export interface StudentModel extends Model<TStudent> {
+  isUserExists(id: string): Promise<TStudent | null>;
+}
+
+// for creating instance
+
+// // for custom instance method learning to find if a user exist in our DB or not
+// export type StudentMethods = {
+//   isUserExists(id: string): Promise<TStudent | null>; // the Promise will return TStudent type data if student exist otherwise it will return null
+// };
 
 // Create a new Model type that knows about StudentMethods...
-export type StudentModel = Model<TStudent, {}, StudentMethods>;
+// export type StudentModel = Model<TStudent, {}, StudentMethods>;
 
 // if the above line show any error the code below will be it's solution of '{ }'this empty object
 // export type StudentModel = Model<
