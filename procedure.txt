@@ -132,7 +132,7 @@
                   "no-undef": "error",
                   "no-console": "warn",
                 },
-              },
+              },`
               {
                 ignores: ["node_modules", "dist"],
               },

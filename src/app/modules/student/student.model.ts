@@ -1,15 +1,17 @@
 import { Schema, model, connect } from "mongoose";
 
-// import validator from 'validator';
+import validator from "validator";
 
 import {
-  Guardian,
-  LocalGuardian,
-  Student,
-  UserName,
+  TGuardian,
+  TLocalGuardian,
+  TStudent,
+  StudentMethods,
+  StudentModel,
+  TUserName,
 } from "./student.interface";
 
-const userNameSchema = new Schema<UserName>({
+const userNameSchema = new Schema<TUserName>({
   // firstName: { type: String, required: [true, 'error message'] },
   firstName: {
     type: String,
@@ -35,18 +37,14 @@ const userNameSchema = new Schema<UserName>({
     required: [true, "Last name is required"],
     trim: true,
     maxlength: [20, "Name can not be more than 20 character"],
-    //  validation using validator library
-
-    // warning: unfortunately the validator is not working here because of the eslint and some functional settings error
-
-    // validate: {
-    //   validator: (value: string) => validator.isAlpha(value),
-    //   message: '{VALUE} is not valid', // is the value return false this will be error message
-    // },
+    validate: {
+      validator: (value: string) => validator.isAlpha(value),
+      message: "{VALUE} is not valid", // is the value return false this will be error message
+    },
   },
 });
 
-const guardianSchema = new Schema<Guardian>({
+const guardianSchema = new Schema<TGuardian>({
   fatherName: {
     type: String,
     required: [true, "Father Name is required"],
@@ -77,7 +75,7 @@ const guardianSchema = new Schema<Guardian>({
   },
 });
 
-const localGuardianSchema = new Schema<LocalGuardian>({
+const localGuardianSchema = new Schema<TLocalGuardian>({
   name: {
     type: String,
     required: [true, "Local guardian name is required"],
@@ -98,7 +96,11 @@ const localGuardianSchema = new Schema<LocalGuardian>({
   },
 });
 
-const studentSchema = new Schema<Student>({
+//    code below (studentSchema) using custom instance
+
+// And a schema that knows about StudentMethods
+
+const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
   id: { type: String, required: [true, "ID is required"], unique: true },
   name: { type: userNameSchema, required: [true, "Name is required"] },
   gender: {
@@ -116,12 +118,10 @@ const studentSchema = new Schema<Student>({
     required: [true, "Email is required"],
     unique: true,
 
-    // warning: unfortunately the validator is not working here because of the eslint and some functional settings error
-
-    // validate: {
-    // validator: (value: string) => validator.isEmail(value),
-    // message: '{VALUE} is not valid email type', // is the value return false this will be error message
-    // },
+    validate: {
+      validator: (value: string) => validator.isEmail(value),
+      message: "{VALUE} is not valid email type", // is the value return false this will be error message
+    },
   },
   contactNo: { type: String, required: [true, "Contact number is required"] },
   emergencyContactNo: {
@@ -162,7 +162,83 @@ const studentSchema = new Schema<Student>({
   },
 });
 
+//   code below is without using custom instance method
+
+// const studentSchema = new Schema<Student>({
+//   id: { type: String, required: [true, "ID is required"], unique: true },
+//   name: { type: userNameSchema, required: [true, "Name is required"] },
+//   gender: {
+//     type: String,
+//     enum: {
+//       values: ["male", "female", "other"],
+//       message:
+//         "The gender field can only be one of the following: 'male', 'female', or 'other'",
+//     },
+//     required: [true, "Gender is required"],
+//   },
+//   dateOfBirth: { type: String, required: [true, "Date of birth is required"] },
+//   email: {
+//     type: String,
+//     required: [true, "Email is required"],
+//     unique: true,
+
+//     validate: {
+//       validator: (value: string) => validator.isEmail(value),
+//       message: "{VALUE} is not valid email type", // is the value return false this will be error message
+//     },
+//   },
+//   contactNo: { type: String, required: [true, "Contact number is required"] },
+//   emergencyContactNo: {
+//     type: String,
+//     required: [true, "Emergency contact number is required"],
+//   },
+
+//   bloodGroup: {
+//     type: String,
+//     enum: {
+//       values: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+//       message: "{VALUE} is not supported", // {VALUE will be the user provided value}
+//     },
+//     required: [true, "Blood group is required"],
+//   },
+//   presentAddress: {
+//     type: String,
+//     required: [true, "Present address is required"],
+//   },
+//   permanentAddress: {
+//     type: String,
+//     required: [true, "Permanent address is required"],
+//   },
+//   guardian: {
+//     type: guardianSchema,
+//     required: [true, "Guardian information is required"],
+//   },
+//   localGuardian: {
+//     type: localGuardianSchema,
+//     required: [true, "Local guardian information is required"],
+//   },
+//   profileImage: { type: String, required: [true, "Profile image is required"] },
+//   isActive: {
+//     type: String,
+//     enum: ["active", "blocked"],
+//     default: "active",
+//     required: [true, "Active status is required"],
+//   },
+// });
+
 // creating a model
 
 // studentModel = model.<Student interface> ('Database collection Name',studentSchema to validate)
-export const StudentModel = model<Student>("Student", studentSchema);
+
+// creating a custom instance method
+studentSchema.methods.isUserExists = async function (id: string) {
+  const existingUser = await Student.findOne({ id });
+  return existingUser;
+};
+
+// without custom instance method
+// export const Student = model<TStudent>("Student", studentSchema);
+
+// with custom instance method
+// making a model named Student form type "TStudent" and using studentSchema
+export const Student = model<TStudent, StudentModel>("Student", studentSchema);
