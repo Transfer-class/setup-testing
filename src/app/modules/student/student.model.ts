@@ -18,6 +18,10 @@ import {
   TUserName,
 } from "./student.interface";
 
+import config from "../../config";
+
+import bcrypt from "bcrypt";
+
 const userNameSchema = new Schema<TUserName>({
   // firstName: { type: String, required: [true, 'error message'] },
   firstName: {
@@ -172,6 +176,11 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
 // for static method
 const studentSchema = new Schema<TStudent, StudentModel>({
   id: { type: String, required: [true, "ID is required"], unique: true },
+  password: {
+    type: String,
+    required: [true, "Password is required"],
+    maxlength: [20, "password can not be more than 20 character"],
+  },
   name: { type: userNameSchema, required: [true, "Name is required"] },
   gender: {
     type: String,
@@ -230,6 +239,50 @@ const studentSchema = new Schema<TStudent, StudentModel>({
     default: "active",
     required: [true, "Active status is required"],
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+// pre save middleware / Hook :will work on create() save() function
+studentSchema.pre("save", async function (next) {
+  // console.log(this, "pre hook: we will save the data");
+  // hashing password and save into data to store DB
+
+  const user = this; // this is our student document
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcrypt_salt_rounds)
+  );
+  next();
+});
+
+// post save middleware / hook
+studentSchema.post("save", function (savedDocument, next) {
+  // console.log(this, "post hook: we saved our data");
+  savedDocument.password = "";
+  next();
+});
+
+// query Middleware
+studentSchema.pre("find", function (next) {
+  // console.log(this);
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+studentSchema.pre("findOne", function (next) {
+  this.findOne({ isDeleted: { $ne: true } });
+  next();
+});
+
+// using aggregate query
+// [{$match:{isDeleted:{ $ne : true }}}, {$match: {id: 123456}}]
+studentSchema.pre("aggregate", function (next) {
+  // console.log(this.pipeline());
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+  next();
 });
 
 // creating a custom static method
